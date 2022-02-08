@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+  <title>Chat App</title>
+  <style>
+#chat {
+  height: 500px;
+  overflow: auto;
+  font-size: 16px;
+}
+
+.container > .jumbotron {
+  height: 120px;
+  padding: 1.5% 1% 5% 1%;
+}
+
+.content {
+  box-sizing: border-box;
+  overflow: auto;
+  height: 85%;
+  margin: 1% 0;
+}
+
+/* msg */
+
+.msg {
+  padding: 1%;
+  margin: 1%;
+  border: 1px solid var(--blue);
+  border-radius: 3px;
+  color: var(--dark);
+  width: fit-content;
+  max-width: 80%;
+}
+
+.msg .head {
+  width: 100%;
+  color: var(--indigo);
+  font-weight: 350;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.msg .body {
+  margin: 1% 0;
+  font-size: 16px;
+}
+
+.msg .footer {
+  color: gray;
+  font-size: 12px;
+}
+
+.message-left{
+  float: left;
+  clear: both;
+}
+
+.message-right{
+  float: right;
+  clear: both;
+}
+
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">Chat App</h1>
+    </div>
+
+    <div class="container-fluid bg-light" id="chat">
+      <div class="content" id="chat-content" style="height: 70vh">
+        <!-- <span class="msg message-left">
+          <div class="head">
+            Salman Zain
+          </div>
+          <div class="body">
+            Hey Bot! I am Finr How about You i think you look well  
+          </div>
+          <div class="footer">
+            8/2/2022 - 12:23 PM
+          </div>
+        </span>
+        <span class="msg message-right">
+          <div class="head">
+            Salman Zain
+          </div>
+          <div class="body">
+            Hey Bot! 
+          </div>
+          <div class="footer">
+            8/2/2022 - 12:23 PM
+          </div>
+        </span> -->
+      </div>
+      <form class="tools form-row" id="form-container">
+        <input id="newMessage" class="form-control col mr-2" type="text" name="" placeholder="Message">
+        </button>
+        <button class="btn btn-primary " type="submit">
+          <i class="far fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    const socket  = io();
+    const form = document.getElementById('form-container');
+    const msg = document.getElementById('newMessage');
+    const msg_container = document.querySelector('#chat-content');
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      const message = msg.value;
+      append('You',message,'right');
+      socket.emit('send',message);
+      msg.value = "";
+    });
+
+
+    const append = (name,message, position) => {
+      const msg_element = document.createElement('span');
+      msg_element.classList.add('msg')
+      msg_element.classList.add(`message-${position}`);
+      msg_element.innerHTML = `<div class='head'>${name}</div><div class='body'>${message}</div><div class='footer'>8/2/2022 - 12:23 PM</div>`;
+      msg_container.append(msg_element);
+    };
+
+    
+    const name  = prompt('Please Enter Your Name');
+
+    socket.emit('new_user_joined',name);
+
+    socket.on('new_join', function(data){
+      append(data.name,data.message,'right');
+    });
+
+    socket.on('recieve', function(data){
+      append(data.name,data.message,'left');
+    });
+
+
+</script>
